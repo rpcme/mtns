@@ -5,6 +5,7 @@ RELDIR=$(dirname $0)
 C_ORANGE='\033[0;33m'
 C_GREEN='\033[0;32m'
 C_BLUE='\033[0;34m'
+C_RED='\033[0;31m'
 C_NONE='\033[0m'
 
 source $RELDIR/mtnsinit
@@ -44,6 +45,8 @@ while read repoline; do
             printf "${C_GREEN}done${C_NONE} $(echo $outline | cut -f2-10 -d ' ')\n"
         elif test x$status == xskip; then
             printf "${C_BLUE}skip${C_NONE} $(echo $outline | cut -f2-10 -d ' ')\n"
+        else
+            printf "${C_RED}uhoh${C_NONE} $h $tagvalue\n"
         fi
     done < $MTNSCACHE/tags.$h
     
