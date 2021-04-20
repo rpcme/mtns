@@ -2,7 +2,7 @@
 
 A set of almost-tools that help me track changes for the meta-aws project.
 
-mtns would mean "maintainer tracking and notification system" if we were in 70s IBM, or phonetically mean "emptyness" if living in some emo-goth echochamber.  Really, it's four characters put together that doesn't clash with anything else and it's easy to remember.
+mtns would mean "maintainer tracking and notification system" if we were in 70s IBM, or phonetically mean "emptyness" if living in some emo-goth echochamber.  Really, it's four characters put together that don't clash with anything else and it's easy to remember.
 
 
 ## Prerequisites
