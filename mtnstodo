@@ -2,6 +2,10 @@
 # -*- mode: Shell-script; -*-
 # report on tags new in the last week to determine new recipe targets
 RELDIR=$(dirname $0)
+C_ORANGE='\033[0;33m'
+C_GREEN='\033[0;32m'
+C_BLUE='\033[0;34m'
+C_NONE='\033[0m'
 
 source $RELDIR/mtnsinit
 
@@ -29,7 +33,18 @@ while read repoline; do
         if (( $tagdate < $last )); then
             continue 1
         fi
-        echo $h: $tagline
+        #echo $h: $tagline
+        tagvalue=$(echo $tagline | cut -f5 -d ' ')
+        #echo TAGVALUE: $tagvalue
+        outline=$(grep -e "$h" $RELDIR/versions.conf | grep -e "$tagvalue")
+        status=$(echo $outline | cut -f1 -d ' ')
+        if test x$status == xtodo; then
+            printf "${C_ORANGE}todo${C_NONE} $(echo $outline | cut -f2-10 -d ' ')\n"
+        elif test x$status == xdone; then
+            printf "${C_GREEN}done${C_NONE} $(echo $outline | cut -f2-10 -d ' ')\n"
+        elif test x$status == xskip; then
+            printf "${C_BLUE}skip${C_NONE} $(echo $outline | cut -f2-10 -d ' ')\n"
+        fi
     done < $MTNSCACHE/tags.$h
     
 done < $RELDIR/repos.conf
