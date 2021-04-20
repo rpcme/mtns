@@ -1,0 +1,36 @@
+#! /bin/bash
+# -*- mode: Shell-script; -*-
+RELDIR=$(dirname $0)
+
+source $RELDIR/mtnsinit
+
+while read repoline; do
+    repoline=$(echo ${repoline} | tr -s ' ' ' ')
+    h=$(echo ${repoline} | cut -f1 -d ' ')
+    r=$(echo ${repoline} | cut -f2 -d ' ')
+    if test "x$h" == "x$r"; then
+        echo $(date) mtnssync: warning: $h missing repo target \
+             >> ${MTNSLOGWARN}
+        continue
+    fi
+    if test ! -d ${MTNSREPOS}/$h; then
+        echo $(date) mtnssync: repo not cloned: cloning $r to ${MTNSREPOS}/$h \
+             >> ${MTNSLOGINFO}
+        git clone $r ${MTNSREPOS}/$h >> ${MTNSLOGINFO} 2>&1
+    fi
+    pushd ${MTNSREPOS}/$h > /dev/null 2>&1
+    git fetch --all -t > /dev/null 2>&1
+
+    echo > /tmp/tags.$h
+    git show-ref --tags | while read i; do
+        ref=$(echo $i | cut -f2 -d ' ' )
+        refdate=$(git log -1 --format=%ai $ref)
+        echo $refdate $i >> /tmp/tags.$h
+    done
+    # list newest first
+    sort -r /tmp/tags.$h > ${MTNSCACHE}/tags.$h
+    
+    popd > /dev/null 2>&1 
+done < $RELDIR/repos.conf
+
+

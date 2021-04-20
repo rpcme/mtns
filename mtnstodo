@@ -1,0 +1,35 @@
+#! /bin/bash
+# -*- mode: Shell-script; -*-
+# report on tags new in the last week to determine new recipe targets
+RELDIR=$(dirname $0)
+
+source $RELDIR/mtnsinit
+
+offset=${1:-8}
+
+secs=$(expr 60 \* 60)
+secs=$(expr $secs \* 24)
+secs=$(expr $secs \* $offset)
+today=$(date -u -d now +%s)
+last=$(expr $today - $secs) 
+
+while read repoline; do
+    h=$(echo ${repoline} | cut -f1 -d ' ')
+    if test ! -d ${MTNSREPOS}/$h; then
+        echo error: $h does not exist. run reposync first.
+        continue
+    fi
+
+    while read tagline; do
+        if test "x$tagline" == x; then
+            continue;
+        fi
+        tagdate=$(echo $tagline | cut -f1-3 -d ' ')
+        tagdate=$(date -u -d "$tagdate" +%s)
+        if (( $tagdate < $last )); then
+            continue 1
+        fi
+        echo $h: $tagline
+    done < $MTNSCACHE/tags.$h
+    
+done < $RELDIR/repos.conf

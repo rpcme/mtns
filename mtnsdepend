@@ -1,0 +1,59 @@
+#! /bin/bash
+# -*- mode: Shell-script; -*-
+# seek submodules for each repo and report dependent repo and tag
+#set -x
+
+
+RELDIR=$(pwd)/$(dirname $0)
+
+source $RELDIR/mtnsinit
+
+while read repoline; do
+        repoline=$(echo ${repoline} | tr -s ' ' ' ')
+    h=$(echo ${repoline} | cut -f1 -d ' ')
+    r=$(echo ${repoline} | cut -f2 -d ' ')
+    if test "x$h" == "x$r"; then
+        echo $(date) mtnsdepend: warning: $h missing repo target \
+             >> ${MTNSLOGWARN}
+        continue
+    fi
+
+    if test ! -f ${MTNSREPOS}/$h/.gitmodules; then
+        continue
+    fi
+
+    pushd ${MTNSREPOS}/$h > /dev/null 2>&1
+    total=0
+    #for sm in $(git config --file .gitmodules --name-only --get-regexp path); do
+    echo SUBMODULE DEPENDENCIES FOR $h
+    for sm in $(git config --file .gitmodules --name-only -l | cut -f2 -d. | uniq); do
+        total=$(expr $total + 1)
+        path=$(git config --file .gitmodules --get submodule.${sm}.path)
+        url=$(git config --file .gitmodules --get submodule.${sm}.url)
+        # remove proto
+        url=$(echo $url | sed -e s,https://,,)
+        
+        # get the commit hash for the submodule, look up in dependent repo
+        ch=$(git submodule status $path | cut -f1 -d ' '  | sed -e s/-//)
+        drepo=$(grep $url $RELDIR/repos.conf)
+        if test -z "$drepo"; then
+            echo repo not found in repos.conf:  $url
+            continue
+        fi
+        handle=$(echo $drepo | cut -f1 -d ' ')
+        #echo $handle
+        #echo $ch
+        targ=$(grep $ch $MTNSCACHE/tags.$handle)
+        if test -z "$targ"; then
+            echo ERROR: tag not found for submodule [$handle]!
+            continue
+        fi
+        #echo $drepo
+        printf "  $path : $(echo $targ | cut -f5 -d' ')\n"
+    done
+    printf "  ** $h has $total submodules.\n\n"
+    
+    popd > /dev/null 2>&1
+
+done < $RELDIR/repos.conf
+

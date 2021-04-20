@@ -1,0 +1,17 @@
+#! /bin/bash
+# -*- mode: Shell-script; -*-
+MTNSREPOS=~/.mtns/repos
+MTNSCACHE=~/.mtns/cache
+MTNSLOGS=~/.mtns/logs
+
+MTNSLOGERR=~/.mtns/logs/error.log
+MTNSLOGWARN=~/.mtns/logs/warning.log
+MTNSLOGINFO=~/.mtns/logs/info.log
+
+if test ! -d ${MTNSREPOS}; then mkdir -p ${MTNSREPOS}; fi
+if test ! -d ${MTNSCACHE}; then mkdir -p ${MTNSCACHE}; fi
+if test ! -d ${MTNSLOGS}; then  mkdir -p ${MTNSLOGS};  fi
+
+
+echo mtnsinit: $(date) >> ${MTNSLOGINFO}
+
