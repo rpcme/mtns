@@ -1,0 +1,17 @@
+#! /bin/bash
+# -*- mode: Shell-script; -*-
+# report on available tags v configured recipe versions.
+
+RELDIR=$(dirname $0)
+
+source $RELDIR/mtnsinit
+
+while read recipe; do
+    repo=$(echo ${repoline} | cut -f1 -d ' ')
+    category=$(echo ${repoline} | cut -f2 -d ' ')
+    solution=$(echo ${repoline} | cut -f3 -d ' ')
+    if test ! -d ${MTNSREPOS}/$repo/$category/$solution; then
+        echo error: $repo/$category/$solution does not exist. run reposync first.
+        continue
+    fi    
+done < $RELDIR/recipes.conf
